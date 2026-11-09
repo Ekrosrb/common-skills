@@ -1,0 +1,19 @@
+{
+  "name": "common-skills",
+  "owner": {
+    "name": "Ekrosrb"
+  },
+  "description": "Agent skills for coding sessions backed by mcp-document-service.",
+  "plugins": [
+    {
+      "name": "space-init",
+      "source": "./skills/space-init",
+      "description": "Session bootstrap: standing rules for communication, scope, memory in mcp-document-service, and comments."
+    },
+    {
+      "name": "service-map",
+      "source": "./skills/service-map",
+      "description": "Map one microservice into mcp-document-service so agents can understand a multi-service system without reading every repo."
+    }
+  ]
+}
