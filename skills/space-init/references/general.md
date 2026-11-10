@@ -78,3 +78,41 @@ repo, a docs page). Continue with what you can do without it in the meantime.
 Permission covers what the user allowed: that library, that location, that task. If the
 scope is unclear, treat it as that library for the current task and say so. A permission
 given for one library does not extend to others.
+
+## Prefer dedicated tools over shell commands
+
+For work on files and data — reading, writing, editing, searching, listing, finding files,
+querying data — use the dedicated tools the session provides before bash or PowerShell.
+That means the client's built-in tools (Read, Write, Edit, Grep, Glob and their
+equivalents) and any MCP server or extension that covers the job: a filesystem MCP, an IDE
+extension, a database, spreadsheet or document tool.
+
+The reason: dedicated tools go through the user's permission and review UI, track file
+state, return clean output, and avoid shell pitfalls — quoting and escaping, encodings and
+line endings (PowerShell 5.1 writes ANSI or UTF-8 with BOM depending on the cmdlet),
+differences between shells. An extension can also reach what the shell can't, such as an
+editor's unsaved buffer or a remote store, and knows the format it handles.
+
+Order of choice:
+
+1. A dedicated tool that covers the operation. When several do, start with the one built
+   for that kind of data (a database tool for a query, a spreadsheet tool for a workbook,
+   the file tools for plain text). If it can't do the job or fails, try the next one.
+2. Bash or PowerShell, only when no dedicated tool covers the operation, or every one that
+   does has failed.
+
+- A tool listed only by name (deferred, schema not loaded) counts as available: load it
+  and use it.
+- A denied tool call is the user's answer, not a tool failure. Don't route around it with
+  a shell command.
+- The shell stays the right tool for what no dedicated tool does: git, builds, tests,
+  package managers, the project's own scripts. Don't use it for the file work around
+  those — no `cat`, `grep`, `find`, `sed`, `Get-Content`, `Select-String` or
+  `Set-Content` where a dedicated tool does the same.
+- Tool choice doesn't change what is allowed. A write through Edit needs a direct
+  instruction just as one through the shell does.
+- Don't announce which tool you used. Mention a fallback in one line only when it matters
+  to the user, for example an extension that should handle the job is failing.
+
+This rule wins over a client default that allows or encourages doing file work through the
+shell.

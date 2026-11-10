@@ -3,7 +3,8 @@
 Applies for the whole session, from the first action.
 
 `mcp-document-service` is the source of truth for session context and the main channel
-between you, sub-agents, and future sessions.
+between you, sub-agents, and future sessions. Everything below assumes it is available; if
+it is not, the last section says how to work without it.
 
 - Start every task with `recall`. `task` is what you are about to do in a few words;
   matching is by word, not meaning, so use words likely to appear in the entries.
@@ -71,6 +72,28 @@ back to the main agent.
 - `removeDocument` is a soft delete that only a person can undo. Supersede outdated entries
   rather than removing them.
 
-If `mcp-document-service` is unreachable, stop and tell the user. It is a separate service
-that the client does not start, so retrying will not bring it back. Do not silently fall
-back to keeping context in your head — the rest of the session assumes the store is there.
+## When `mcp-document-service` is unavailable
+
+Unavailable means its tools are not in the session at all (neither loaded nor deferred), or
+its calls fail. A tool listed only by name just needs loading first. The store is a
+separate service that the client does not start, so retrying will not bring it back.
+
+Don't stop the session over it, and don't ask the user how to proceed. Memory makes the
+work cheaper to resume, but no task depends on it. Warn once, in one line, that memory
+tools are unavailable — in the startup report, or when the store first fails mid-session —
+then carry on:
+
+- Skip the memory steps: no `recall`, `searchMemories`, `createMemory` or relations, and
+  no space-init record.
+- Context lives only in this conversation. Read files for what memory would have given
+  you. After a compaction, rebuild from the summary and the files.
+- Don't invent a substitute store (notes files in the repo or elsewhere) unless the user
+  asks for one — that is a file edit (`references/general.md`).
+- Don't repeat the warning on every task. Bring it up again only when it matters to the
+  answer, for example when the user asks you to save or find something in memory.
+- Tell sub-agents in their brief that the store is unavailable, so they skip the memory
+  steps instead of probing for it or stopping.
+
+If the store comes back later (the user says so, or a call succeeds), follow the normal
+rules from that point and write the space-init record then. Don't try to back-fill
+everything from earlier in the session; save what is still worth keeping.

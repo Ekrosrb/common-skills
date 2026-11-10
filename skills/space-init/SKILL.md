@@ -1,6 +1,6 @@
 ---
 name: "space-init"
-description: 'Set up the standing rules for a coding session in any project and point to the rule files that hold them: how to communicate (terse, few words), general rules that apply to every task (doing only what the user asked, answering questions without changing anything, never reading dependency sources without permission), mcp-document-service as the shared long-term memory and communication layer, and comment rules that follow the project''s own style first. Takes no arguments and performs no coding work. Use it whenever the user runs /space-init or says "space-init", "space init", "init the session", "set up the session", "start a coding session", "load the session rules", or asks to restore the working conventions after a context compaction. Run it before any other work when asked, and come back to it later in the session to find which rule file covers the task at hand.'
+description: 'Set up the standing rules for a coding session in any project and point to the rule files that hold them: how to communicate (terse, few words), general rules that apply to every task (doing only what the user asked, answering questions without changing anything, never reading dependency sources without permission, preferring dedicated file/search tools and extensions over bash/PowerShell), mcp-document-service as the shared long-term memory and communication layer when it is available (the session still runs without it and warns that memory tools are off), and comment rules that follow the project''s own style first. Takes no arguments and performs no coding work. Use it whenever the user runs /space-init or says "space-init", "space init", "init the session", "set up the session", "start a coding session", "load the session rules", or asks to restore the working conventions after a context compaction. Run it before any other work when asked, and come back to it later in the session to find which rule file covers the task at hand.'
 ---
 
 # space-init
@@ -20,20 +20,24 @@ relevant reference file, not this one.
 
 1. Read `references/communication-style.md` first. It governs every response you write
    from here on, including the report at the end of this sequence, so it cannot wait.
-2. Check that the `mcp-document-service` MCP is reachable (`getProjectsInfo` is the
-   cheapest probe, and it lists the project keys). If it is not, say so immediately and
-   ask how to proceed — the memory rules lean on it.
+2. Check whether `mcp-document-service` is available. Its tools may be listed only by name
+   (deferred); load them first — that is not unavailability. Probe with `getProjectsInfo`
+   (cheapest, and it lists the project keys). If the tools are missing or the probe fails,
+   don't stop and don't ask how to proceed: carry on without the store and warn the user in
+   the step 5 report. `references/memory.md` says what changes without it.
 3. Read `references/general.md` and `references/memory.md`. They govern every action from
    here on, so they are not worth deferring.
-4. Record that space-init is active with `createMemory`: scope `AGENT`, memoryType
+4. Skip this step if the store is unavailable.
+   Record that space-init is active with `createMemory`: scope `AGENT`, memoryType
    `PROCEDURE`, `name` "space-init is active". The `name`, `summary` and `content` list
    only the active rule files below — no task, project or repo state. Find the previous
    record with `searchMemories` (scope `AGENT`, query "space-init is active") and supersede
    it: pass `relations: [{relatedDocumentId: <old id>, type: SUPERSEDES}]`, one per current
    record returned, so only the new one stays current. After a context compaction this is
    how the rules come back — re-read the files rather than trusting a summary in the entry.
-5. Report in one short line that the session is ready, plus any problems (for example
-   `mcp-document-service` unreachable). Don't list recalled or saved entries.
+5. Report in one short line that the session is ready, plus any problems. If the store is
+   unavailable, the warning goes here: memory tools are unavailable, so context lives only
+   in this conversation. Don't list recalled or saved entries.
 
 ## New session or restore
 
@@ -60,15 +64,16 @@ top. The rules are being reloaded, not the session restarted, so the new-session
 above does not apply.
 
 Rebuild the working context: `recall` with the words of the task in progress, then
-`searchMemories` for what it misses, as `references/memory.md` says. Then continue that
-task from where it stopped. Don't wait for a new task or ask the user to repeat it.
+`searchMemories` for what it misses, as `references/memory.md` says. Without the store,
+rebuild from the compaction summary and the files. Then continue that task from where it
+stopped. Don't wait for a new task or ask the user to repeat it.
 
 ## Rule files
 
 | File | Read it | Covers |
 | --- | --- | --- |
 | `references/communication-style.md` | First at startup, and again after a compaction | How every response is written: few words, terse bullet-like style that keeps every warning and exact detail, directness, plain language, structure, corrections, filler to avoid. Applies to all output, in every brief |
-| `references/general.md` | At startup, and again after a compaction | Rules that apply to every task: do only what the user asked — questions get answers, no file edits or other non-read operations without a direct instruction, no suggestions to implement; no decompiling or reading dependency/library sources without the user's permission — ask for the sources instead |
-| `references/memory.md` | At startup, and again after a compaction | `mcp-document-service` as source of truth: what to store, when to write, how to write an entry, keeping entries current, recovering context, keeping memory work out of replies |
-| `references/service-map.md` | When the first task in a repo arrives, and before any task that touches another service | Using the docs the `service-map` skill builds: finding and reading the repo's service doc and its set index, reading a neighbour's doc before its code, small fixes to map docs, naming map docs in sub-agent briefs, re-reading after a compaction |
+| `references/general.md` | At startup, and again after a compaction | Rules that apply to every task: do only what the user asked — questions get answers, no file edits or other non-read operations without a direct instruction, no suggestions to implement; no decompiling or reading dependency/library sources without the user's permission — ask for the sources instead; prefer dedicated tools and extensions over bash/PowerShell for file and data work, shell only as fallback |
+| `references/memory.md` | At startup, and again after a compaction | `mcp-document-service` as source of truth: what to store, when to write, how to write an entry, keeping entries current, recovering context, keeping memory work out of replies, working without the store when it is unavailable |
+| `references/service-map.md` | When the first task in a repo arrives, and before any task that touches another service (skip when `mcp-document-service` is unavailable) | Using the docs the `service-map` skill builds: finding and reading the repo's service doc and its set index, reading a neighbour's doc before its code, small fixes to map docs, naming map docs in sub-agent briefs, re-reading after a compaction |
 | `references/comments.md` | Before writing or changing any comment | Project style first, no new comments in a project that barely has any, then class and method level only and what a comment may say |

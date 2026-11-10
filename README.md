@@ -9,11 +9,12 @@ Cursor, Gemini CLI, GitHub Copilot, OpenCode and others.
 
 | Skill | What it does |
 | --- | --- |
-| [space-init](skills/space-init/SKILL.md) | Session bootstrap. Loads standing rules: terse communication, do only what was asked, mcp-document-service as memory, comment style. Run it at the start of a session or after a context compaction. |
+| [space-init](skills/space-init/SKILL.md) | Session bootstrap. Loads standing rules: terse communication, do only what was asked, dedicated tools over shell commands, mcp-document-service as memory (optional), comment style. Run it at the start of a session or after a context compaction. |
 | [service-map](skills/service-map/SKILL.md) | Maps one microservice into mcp-document-service: a short service doc, an index doc per set of related services, and relations between them. Lets agents understand a multi-service system without reading every repo. |
 
 Both use [mcp-document-service](https://github.com/Ekrosrb/mcp-document-service) as shared
-memory, so the agent must have it connected as an MCP server. Install both. `service-map` reads its session rules from `space-init`, and `space-init` refers
+memory. `service-map` needs it connected as an MCP server; `space-init` works without it
+and warns that memory tools are unavailable. Install both. `service-map` reads its session rules from `space-init`, and `space-init` refers
 to the docs that `service-map` builds.
 
 ## Install

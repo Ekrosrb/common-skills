@@ -8,6 +8,9 @@ inbound and outbound interfaces, cross-cutting rules, code and test conventions,
 questions (GAP lines). Reading it is cheaper than rediscovering the same facts from code,
 and it is the only place that records who calls a service or consumes its topics.
 
+If `mcp-document-service` is unavailable, there is no map to read: skip this file and work
+from the code. Don't mention missing map docs; the startup warning already covers it.
+
 ## The current repo's service doc
 
 Look it up when the first task in a repo arrives, not at startup. At startup there is no
